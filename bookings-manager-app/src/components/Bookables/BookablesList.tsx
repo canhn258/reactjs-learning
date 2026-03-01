@@ -1,11 +1,24 @@
-import { Fragment, useState } from "react";
+import { Fragment, useReducer } from "react";
 import { bookables, days, sessions } from "../../static.json";
 import { FaArrowRight } from "react-icons/fa";
+import reducer from "./reducer";
+
+const initialState = {
+  group: "Rooms",
+  bookableIndex: 0,
+  hasDetails: false,
+  bookables,
+};
 
 export default function BookablesList() {
-  const [group, setGroup] = useState("Kit");
-  const [bookableIndex, setBookableIndex] = useState(0);
-  const [hasDetails, setHasDetails] = useState(false);
+  // reducer: uses an action to create a new state from the old
+  // initialState: the value of each property when component is first rendered
+  // state: the current state object with properties group, bookableIndex, hasDetails, and bookables
+  // dispatch: pass an action object to dispatch to update the state, with type and optional payload properties
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  // assign the state values to local variables
+  const { group, bookableIndex, hasDetails, bookables } = state;
 
   const groups = [...new Set(bookables.map((b) => b.group))];
   const bookablesInGroup = bookables.filter((b) => b.group === group);
@@ -17,12 +30,22 @@ export default function BookablesList() {
   function nextBookable() {
     // pass a function to setBookableIndex to get the latest state value: (i) => (i + 1) % bookablesInGroup.length
     // use previous state value to calculate the next index, and wrap around using modulo operator
-    setBookableIndex((i) => (i + 1) % bookablesInGroup.length);
+    // setBookableIndex((i) => (i + 1) % bookablesInGroup.length);
+
+    // dispatch an action that doesn't need a payload
+    dispatch({ type: "NEXT_BOOKABLE" });
   }
 
   function changeGroup(e: React.ChangeEvent<HTMLSelectElement>) {
-    setGroup(e.target.value);
-    setBookableIndex(0); // reset bookable index to 0 when group changes
+    dispatch({ type: "SET_GROUP", payload: e.target.value });
+  }
+
+  function changeBookable(selectedIndex: number) {
+    dispatch({ type: "SET_BOOKABLE", payload: selectedIndex });
+  }
+
+  function toggleHasDetails() {
+    dispatch({ type: "TOGGLE_HAS_DETAILS" });
   }
 
   return (
@@ -42,7 +65,7 @@ export default function BookablesList() {
               key={bookable.id}
               className={index === bookableIndex ? "selected" : undefined}
             >
-              <button className="btn" onClick={() => setBookableIndex(index)}>
+              <button className="btn" onClick={() => changeBookable(index)}>
                 {bookable.title}
               </button>
             </li>
@@ -66,7 +89,7 @@ export default function BookablesList() {
                   <input
                     type="checkbox"
                     checked={hasDetails}
-                    onChange={() => setHasDetails((has) => !has)}
+                    onChange={toggleHasDetails}
                   />
                   Show details
                 </label>
