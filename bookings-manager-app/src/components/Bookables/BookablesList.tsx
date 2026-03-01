@@ -20,10 +20,15 @@ export default function BookablesList() {
     setBookableIndex((i) => (i + 1) % bookablesInGroup.length);
   }
 
+  function changeGroup(e: React.ChangeEvent<HTMLSelectElement>) {
+    setGroup(e.target.value);
+    setBookableIndex(0); // reset bookable index to 0 when group changes
+  }
+
   return (
     <Fragment>
       <div>
-        <select value={group} onChange={(e) => setGroup(e.target.value)}>
+        <select value={group} onChange={changeGroup}>
           {groups.map((g) => (
             <option key={g} value={g}>
               {g}
@@ -67,7 +72,7 @@ export default function BookablesList() {
                 </label>
               </span>
             </div>
-            
+
             <p>{bookable.notes}</p>
 
             {hasDetails && (
