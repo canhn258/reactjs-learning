@@ -3,7 +3,7 @@ import { days, sessions } from "../../static.json";
 import { FaArrowRight } from "react-icons/fa";
 import reducer from "./reducer";
 import getData from "../../utils/api";
-import Spinner from "../ui/Spinner";
+import Spinner from "../UI/Spinner";
 
 const initialState = {
   group: "Rooms",
