@@ -1,13 +1,17 @@
-import { Fragment, useReducer } from "react";
-import { bookables, days, sessions } from "../../static.json";
+import { Fragment, useEffect, useReducer } from "react";
+import { days, sessions } from "../../static.json";
 import { FaArrowRight } from "react-icons/fa";
 import reducer from "./reducer";
+import getData from "../../utils/api";
+import Spinner from "../ui/Spinner";
 
 const initialState = {
   group: "Rooms",
   bookableIndex: 0,
   hasDetails: false,
-  bookables,
+  bookables: [],
+  isLoading: true,
+  error: false,
 };
 
 export default function BookablesList() {
@@ -18,7 +22,8 @@ export default function BookablesList() {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   // assign the state values to local variables
-  const { group, bookableIndex, hasDetails, bookables } = state;
+  const { group, bookableIndex, hasDetails, bookables, isLoading, error } =
+    state;
 
   const groups = [...new Set(bookables.map((b) => b.group))];
   const bookablesInGroup = bookables.filter((b) => b.group === group);
@@ -26,6 +31,18 @@ export default function BookablesList() {
   // There's no need to call useState to store the selected bookable object itself,
   // because we can derive it from the bookableIndex already stored in state.
   const bookable = bookablesInGroup[bookableIndex];
+
+  useEffect(() => {
+    dispatch({ type: "FETCH_BOOKABLES_REQUEST" });
+
+    getData("http://localhost:3001/bookables")
+      .then((bookables) => {
+        dispatch({ type: "FETCH_BOOKABLES_SUCCESS", payload: bookables });
+      })
+      .catch((error) => {
+        dispatch({ type: "FETCH_BOOKABLES_ERROR", payload: error });
+      });
+  }, []);
 
   function nextBookable() {
     // pass a function to setBookableIndex to get the latest state value: (i) => (i + 1) % bookablesInGroup.length
@@ -46,6 +63,19 @@ export default function BookablesList() {
 
   function toggleHasDetails() {
     dispatch({ type: "TOGGLE_HAS_DETAILS" });
+  }
+
+  if (error) {
+    return <p>{error.message}</p>;
+  }
+
+  if (isLoading) {
+    return (
+      <p>
+        <Spinner />
+        Loading bookables...
+      </p>
+    );
   }
 
   return (

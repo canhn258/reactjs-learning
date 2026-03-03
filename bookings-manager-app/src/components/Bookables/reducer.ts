@@ -4,6 +4,8 @@ export default function reducer(
     bookableIndex: number;
     hasDetails: boolean;
     bookables: any[];
+    isLoading: boolean;
+    error: Error;
   },
   action: { type: string; payload?: any },
 ) {
@@ -32,6 +34,25 @@ export default function reducer(
       return {
         ...state,
         bookableIndex: (state.bookableIndex + 1) % count, // increment bookable index and wrap around using modulus operator
+      };
+    case "FETCH_BOOKABLES_REQUEST":
+      return {
+        ...state,
+        isLoading: true,
+        error: false,
+        bookables: [], // clear bookables when starting to fetch
+      };
+    case "FETCH_BOOKABLES_SUCCESS":
+      return {
+        ...state,
+        isLoading: false,
+        bookables: action.payload, // set bookables to the fetched data from action payload
+      };
+    case "FETCH_BOOKABLES_ERROR":
+      return {
+        ...state,
+        isLoading: false,
+        error: action.payload, // set error to the error object from action payload
       };
     default:
       return state;
