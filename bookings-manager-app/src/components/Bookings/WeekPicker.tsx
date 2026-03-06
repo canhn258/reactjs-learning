@@ -1,7 +1,8 @@
-import { useReducer } from "react";
+import { useReducer, useRef, useState, type RefObject } from "react";
 import reducer from "./weekReducer";
 import { getWeek } from "../../utils/date-wrangler";
 import {
+  FaCalendarCheck,
   FaCalendarDay,
   FaChevronCircleLeft,
   FaChevronRight,
@@ -12,6 +13,18 @@ export default function WeekPicker(props: { date: Date }) {
   // Initialization argument: the value pass to the initialization function
   // Initialization function: getWeek takes the date from props and returns an object with date, start, and end properties representing the current week
   const [week, dispatch] = useReducer(reducer, props.date, getWeek);
+
+  // if we use the useRef hook to store the date text input value,
+  // this component will be an uncontrolled component,
+  // because the value of the input is not controlled by React state, but by the DOM element itself.
+  const textboxRef = useRef() as RefObject<HTMLInputElement>;
+
+  const goToDate = () => {
+    dispatch({
+      type: "SET_DATE",
+      payload: textboxRef.current.value,
+    });
+  };
 
   return (
     <div>
@@ -25,6 +38,20 @@ export default function WeekPicker(props: { date: Date }) {
           <FaCalendarDay />
           <span>Today</span>
         </button>
+
+        <span>
+          <input
+            type="text"
+            placeholder="e.g. 2020-09-02"
+            defaultValue="2026-03-06"
+            ref={textboxRef}
+          />
+
+          <button className="go btn" onClick={goToDate}>
+            <FaCalendarCheck />
+            <span>Go</span>
+          </button>
+        </span>
 
         <button className="btn" onClick={() => dispatch({ type: "NEXT_WEEK" })}>
           <span>Next</span>
