@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useReducer } from "react";
+import { Fragment, useEffect, useReducer, useRef, type RefObject } from "react";
 import { days, sessions } from "../../static.json";
 import { FaArrowRight } from "react-icons/fa";
 import reducer from "./reducer";
@@ -44,6 +44,8 @@ export default function BookablesList() {
       });
   }, []);
 
+  const nextButtonRef = useRef() as RefObject<HTMLButtonElement>;
+
   function nextBookable() {
     // pass a function to setBookableIndex to get the latest state value: (i) => (i + 1) % bookablesInGroup.length
     // use previous state value to calculate the next index, and wrap around using modulo operator
@@ -59,6 +61,7 @@ export default function BookablesList() {
 
   function changeBookable(selectedIndex: number) {
     dispatch({ type: "SET_BOOKABLE", payload: selectedIndex });
+    nextButtonRef.current?.focus();
   }
 
   function toggleHasDetails() {
@@ -102,7 +105,12 @@ export default function BookablesList() {
           ))}
         </ul>
         <p>
-          <button className="btn" autoFocus onClick={nextBookable}>
+          <button
+            className="btn"
+            autoFocus
+            onClick={nextBookable}
+            ref={nextButtonRef}
+          >
             <FaArrowRight />
             <span>Next</span>
           </button>
