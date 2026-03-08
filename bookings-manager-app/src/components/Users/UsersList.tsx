@@ -1,18 +1,19 @@
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { User } from "./User";
 import getData from "../../utils/api";
 import Spinner from "../UI/Spinner";
 
-export default function UsersList() {
+export default function UsersList({ user, setUser }) {
   const [error, setError] = useState<Error | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [users, setUsers] = useState<User[]>([]);
-  const [userIndex, setUserIndex] = useState(0);
-  const user = users?.[userIndex];
+  // const [userIndex, setUserIndex] = useState(0);
+  // const user = users?.[userIndex];
 
   useEffect(() => {
     getData("http://localhost:3001/users")
       .then((users) => {
+        setUser(users[0]);
         setUsers(users);
         setIsLoading(false);
       })
@@ -20,7 +21,7 @@ export default function UsersList() {
         setError(error);
         setIsLoading(false);
       });
-  }, []);
+  }, [setUser]);
 
   if (error) {
     return <p>{error.message}</p>;
@@ -35,31 +36,19 @@ export default function UsersList() {
   }
 
   return (
-    <Fragment>
+    <div>
       <ul className="users items-list-nav">
-        {users.map((user, index) => (
+        {users.map((userItem) => (
           <li
-            key={user.id}
-            className={index === userIndex ? "selected" : undefined}
+            key={userItem.id}
+            className={userItem.id === user?.id ? "selected" : undefined}
           >
-            <button className="btn" onClick={() => setUserIndex(index)}>
-              {user.name}
+            <button className="btn" onClick={() => setUser(userItem)}>
+              {userItem.name}
             </button>
           </li>
         ))}
       </ul>
-
-      {user && (
-        <div className="item user">
-          <div className="item-header">
-            <h2>{user.name}</h2>
-          </div>
-          <div className="user-details">
-            <h3>{user.title}</h3>
-            <p>{user.notes}</p>
-          </div>
-        </div>
-      )}
-    </Fragment>
+    </div>
   );
 }
