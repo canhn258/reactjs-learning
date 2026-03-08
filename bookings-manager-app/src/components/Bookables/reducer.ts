@@ -2,7 +2,6 @@ export default function reducer(
   state: {
     group: string;
     bookableIndex: number;
-    hasDetails: boolean;
     bookables: any[];
     isLoading: boolean;
     error: Error;
@@ -20,11 +19,6 @@ export default function reducer(
       return {
         ...state,
         bookableIndex: action.payload,
-      };
-    case "TOGGLE_HAS_DETAILS":
-      return {
-        ...state,
-        hasDetails: !state.hasDetails,
       };
     case "NEXT_BOOKABLE":
       const count = state.bookables.filter(

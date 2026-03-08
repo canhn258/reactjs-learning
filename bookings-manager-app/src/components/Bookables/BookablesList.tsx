@@ -1,37 +1,17 @@
-import { Fragment, useEffect, useReducer, useRef, type RefObject } from "react";
-import { days, sessions } from "../../static.json";
+import { Fragment, useEffect, useRef, type RefObject } from "react";
 import { FaArrowRight } from "react-icons/fa";
-import reducer from "./reducer";
 import getData from "../../utils/api";
 import Spinner from "../UI/Spinner";
 
-const initialState = {
-  group: "Rooms",
-  bookableIndex: 0,
-  hasDetails: false,
-  bookables: [],
-  isLoading: true,
-  error: false,
-};
-
-export default function BookablesList() {
-  // reducer: uses an action to create a new state from the old
-  // initialState: the value of each property when component is first rendered
-  // state: the current state object with properties group, bookableIndex, hasDetails, and bookables
-  // dispatch: pass an action object to dispatch to update the state, with type and optional payload properties
-  const [state, dispatch] = useReducer(reducer, initialState);
-
-  // assign the state values to local variables
-  const { group, bookableIndex, hasDetails, bookables, isLoading, error } =
-    state;
-
+export default function BookablesList({ state, dispatch }) {
+  // 1. Variables
+  const { group, bookableIndex, bookables, isLoading, error } = state;
   const groups = [...new Set(bookables.map((b) => b.group))];
   const bookablesInGroup = bookables.filter((b) => b.group === group);
 
-  // There's no need to call useState to store the selected bookable object itself,
-  // because we can derive it from the bookableIndex already stored in state.
-  const bookable = bookablesInGroup[bookableIndex];
+  const nextButtonRef = useRef() as RefObject<HTMLButtonElement>;
 
+  // 2. Effects
   useEffect(() => {
     dispatch({ type: "FETCH_BOOKABLES_REQUEST" });
 
@@ -42,10 +22,9 @@ export default function BookablesList() {
       .catch((error) => {
         dispatch({ type: "FETCH_BOOKABLES_ERROR", payload: error });
       });
-  }, []);
+  }, [dispatch]);
 
-  const nextButtonRef = useRef() as RefObject<HTMLButtonElement>;
-
+  // 3. Event handler functions
   function nextBookable() {
     // pass a function to setBookableIndex to get the latest state value: (i) => (i + 1) % bookablesInGroup.length
     // use previous state value to calculate the next index, and wrap around using modulo operator
@@ -64,10 +43,7 @@ export default function BookablesList() {
     nextButtonRef.current?.focus();
   }
 
-  function toggleHasDetails() {
-    dispatch({ type: "TOGGLE_HAS_DETAILS" });
-  }
-
+  // 4. Conditional rendering
   if (error) {
     return <p>{error.message}</p>;
   }
@@ -81,6 +57,7 @@ export default function BookablesList() {
     );
   }
 
+  // 5. Final rendering
   return (
     <Fragment>
       <div>
@@ -116,46 +93,6 @@ export default function BookablesList() {
           </button>
         </p>
       </div>
-
-      {bookable && (
-        <div className="bookable-details">
-          <div className="item">
-            <div className="item-header">
-              <h2>{bookable.title}</h2>
-              <span className="controls">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={hasDetails}
-                    onChange={toggleHasDetails}
-                  />
-                  Show details
-                </label>
-              </span>
-            </div>
-
-            <p>{bookable.notes}</p>
-
-            {hasDetails && (
-              <div className="item-details">
-                <h3>Availability</h3>
-                <div className="bookable-availability">
-                  <ul>
-                    {bookable.days.sort().map((d) => (
-                      <li key={d}>{days[d]}</li>
-                    ))}
-                  </ul>
-                  <ul>
-                    {bookable.sessions.sort().map((s) => (
-                      <li key={s}>{sessions[s]}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </Fragment>
   );
 }
