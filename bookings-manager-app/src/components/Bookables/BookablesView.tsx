@@ -1,4 +1,4 @@
-import { Fragment, useReducer } from "react";
+import { Fragment, useReducer, useState } from "react";
 
 import reducer from "./reducer";
 import BookablesList from "./BookablesList";
@@ -17,19 +17,21 @@ export default function BookablesView() {
   // initialState: the value of each property when component is first rendered
   // state: the current state object with properties group, bookableIndex, hasDetails, and bookables
   // dispatch: pass an action object to dispatch to update the state, with type and optional payload properties
-  const [state, dispatch] = useReducer(reducer, initialState);
+  // const [state, dispatch] = useReducer(reducer, initialState);
 
   // assign the state values to local variables
-  const { group, bookableIndex, bookables } = state;
-  const bookablesInGroup = bookables.filter((b) => b.group === group);
+  // const { group, bookableIndex, bookables } = state;
+  // const bookablesInGroup = bookables.filter((b) => b.group === group);
 
   // There's no need to call useState to store the selected bookable object itself,
   // because we can derive it from the bookableIndex already stored in state.
-  const bookable = bookablesInGroup[bookableIndex];
+  // const bookable = bookablesInGroup[bookableIndex];
+
+  const [bookable, setBookable] = useState();
 
   return (
     <Fragment>
-      <BookablesList state={state} dispatch={dispatch} />
+      <BookablesList bookable={bookable} setBookable={setBookable} />
       <BookableDetails bookable={bookable} />
     </Fragment>
   );
