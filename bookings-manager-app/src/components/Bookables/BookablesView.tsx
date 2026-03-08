@@ -1,4 +1,4 @@
-import { Fragment, useReducer, useState } from "react";
+import { Fragment, useCallback, useReducer, useState } from "react";
 
 import reducer from "./reducer";
 import BookablesList from "./BookablesList";
@@ -29,9 +29,30 @@ export default function BookablesView() {
 
   const [bookable, setBookable] = useState();
 
+  /*
+  // redefining problem of this function when passed as a prop to BookablesList, 
+
+  function updateBookable(selectedBookable) {
+    if (selectedBookable) {
+      selectedBookable.lastShown = Date.now();
+      setBookable(selectedBookable);
+    }
+  }
+  */
+
+  // solved redefining problem by using useCallback hook
+  // to memoize the function and prevent unnecessary re-renders of BookablesList
+  // when the function reference changes on every render of BookablesView.
+  const updateBookable = useCallback((selectedBookable) => {
+    if (selectedBookable) {
+      selectedBookable.lastShown = Date.now();
+      setBookable(selectedBookable);
+    }
+  }, []);
+
   return (
     <Fragment>
-      <BookablesList bookable={bookable} setBookable={setBookable} />
+      <BookablesList bookable={bookable} setBookable={updateBookable} />
       <BookableDetails bookable={bookable} />
     </Fragment>
   );
