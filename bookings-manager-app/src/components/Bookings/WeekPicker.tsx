@@ -1,6 +1,4 @@
-import { useReducer, useRef, useState, type RefObject } from "react";
-import reducer from "./weekReducer";
-import { getWeek } from "../../utils/date-wrangler";
+import { useRef, type RefObject } from "react";
 import {
   FaCalendarCheck,
   FaCalendarDay,
@@ -8,22 +6,24 @@ import {
   FaChevronRight,
 } from "react-icons/fa";
 
-export default function WeekPicker(props: { date: Date }) {
+export default function WeekPicker({ dispatch }) {
   // Reducer: use an action to create a new state from the old
   // Initialization argument: the value pass to the initialization function
   // Initialization function: getWeek takes the date from props and returns an object with date, start, and end properties representing the current week
-  const [week, dispatch] = useReducer(reducer, props.date, getWeek);
+  // const [week, dispatch] = useReducer(reducer, props.date, getWeek);
 
   // if we use the useRef hook to store the date text input value,
   // this component will be an uncontrolled component,
   // because the value of the input is not controlled by React state, but by the DOM element itself.
   // const textboxRef = useRef() as RefObject<HTMLInputElement>;
-  const [dateText, setDateText] = useState("2026-03-17");
+  // const [dateText, setDateText] = useState("2026-03-17");
+
+  const textBoxRef = useRef() as RefObject<HTMLInputElement>;
 
   const goToDate = () => {
     dispatch({
       type: "SET_DATE",
-      payload: dateText,
+      payload: textBoxRef.current.value,
     });
   };
 
@@ -45,8 +45,7 @@ export default function WeekPicker(props: { date: Date }) {
             type="text"
             placeholder="e.g. 2020-09-02"
             defaultValue="2026-03-17"
-            value={dateText}
-            onChange={(e) => setDateText(e.target.value)}
+            ref={textBoxRef}
           />
 
           <button className="go btn" onClick={goToDate}>
@@ -59,9 +58,6 @@ export default function WeekPicker(props: { date: Date }) {
           <span>Next</span>
           <FaChevronRight />
         </button>
-      </p>
-      <p>
-        {week.start.toDateString()} - {week.end.toDateString()}
       </p>
     </div>
   );
